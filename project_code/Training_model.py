@@ -9,7 +9,7 @@ import numpy as np
 from tensorflow.keras import optimizers
 from tensorflow.keras import losses
 from tensorflow.keras import metrics
-from CNN_model import Malware_detection_model
+from CNN_models import Malware_detection_model
 
 tf.__version__
 
