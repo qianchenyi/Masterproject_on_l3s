@@ -10,16 +10,6 @@ from IPython import display
 import UploadData
 
 class MalGAN():
-    def load_data():
-        train_dataset,train_mal_dataset,train_ben_dataset = UploadData.dataset()#get the dataset
-
-        trian_x, train_y = next(iter(train_dataset))
-        train_mal_x, train_mal_y= next(iter(train_mal_dataset))
-        train_ben_x, train_ben_y= next(iter(train_ben_dataset))
-        
-
-   
-
     def build_blackbox_detector(self):
 
         if self.blackbox is 'MLP':
@@ -93,11 +83,23 @@ class MalGAN():
         self.combined = Model(input, validity)
         self.combined.compile(loss='binary_crossentropy', optimizer=optimizer)
 
+        self.train_ds,self.train_mal_ds,self.train_ben_ds= UploadData.get_train_dataset()#get the dataset
+        self.vali_ds,self.vali_mal_ds,self.vali_ben_ds= UploadData.get_vali_dataset()
+
+        self.trian_x, self.train_y = next(iter(train_ds))
+        self.train_mal_x, self.train_mal_y= next(iter(train_mal_ds))
+        self.train_ben_x, self.train_ben_y= next(iter(train_ben_ds))
+
+        self.vali_x, self.vali_y = next(iter(vali_ds))
+        self.vali_mal_x, self.vali_mal_y= next(iter(vali_mal_ds))
+        self.vali_ben_x, self.vali_ben_y= next(iter(vali_ben_ds))
+        
+
     def train(self, epochs, batch_size=32):
         #load the dataset
         # Train blackbox_detctor
-        self.blackbox_detector.fit(x_trian,y_train)
-        noise_dim=IMAGE_WIDTH*IMAGE_HEIGHT
+        self.blackbox_detector.fit(Concatenate(axis=1)([self.trian_x,  self.vali_x]),
+                                    Concatenate(axis=1)([self.trian_y,  self.vali_y]))
   
         ytrain_ben_blackbox = self.blackbox_detector.predict(train_ben_x)
         Original_Train_TRR = self.blackbox_detector.score(train_mal_x,train_mal_y)
