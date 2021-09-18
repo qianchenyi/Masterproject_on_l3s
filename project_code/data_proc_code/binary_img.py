@@ -4,8 +4,8 @@ from os.path import join as pjoin
 import argparse
 from PIL import Image
 
-read_path = '/home/qian/Masterproject/dataset/malware/orig_data'
-save_path = '/home/qian/Masterproject/dataset/malware/processed_image_malicous'
+read_path = '/home/qian/Masterproject/dataset/benign_dataset'
+save_path = '/home/qian/Masterproject/dataset/train_images/GRAY/b_greyscale'
 #img_bin_data = readBytes('/Users/jessica/Documents/masterproject/malimg/binary_dataset_9010/train/Adialer.C/00bb6b6a7be5402fcfce453630bfff19.npy')
 
 
@@ -161,7 +161,7 @@ for file in files:
     #filtered_markov = cv2.filter2D(markov_arry, cv2.CV_8UC3, gabor_kernel)
 #print(img_bin_data)
     filename = file.split(".")[0]+'.png'
-    saveImg(filename, 'greyscale/',greyscale_array, (512,512),'L')
+    saveImg(filename, 'bb_greyscale/',greyscale_array, (512,512),'L')
     saveImg(filename, 'RGB',RGB_array, (512,512),'RGB')
     saveImg(filename, 'markov',markov_arry, (512,512),'L')
 
