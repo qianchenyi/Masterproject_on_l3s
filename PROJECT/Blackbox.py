@@ -3,8 +3,9 @@ import numpy as np
 
 import tensorflow as tf
 from tensorflow import keras
+from tensorflow.keras.callbacks import ModelCheckpoint
 from tensorflow.keras import layers, models, applications, optimizers, losses, metrics
-from keras.callbacks import *
+from tensorflow.keras.callbacks import *
 import pandas
 import matplotlib.pyplot as plt
 
@@ -307,7 +308,7 @@ class MalwareDetectionModels:
         return m12
 
     def define_callbacks(self):
-        checkpoint_cb = ModelCheckpoint("/content/Model.h5", save_freq="epoch", save_best_only=True)
+        checkpoint_cb = ModelCheckpoint("/home/qian/Masterproject/PROJECT/checkpoint/Model.h5", save_best_only=True)
         early_stopping_cb = EarlyStopping(patience=10, restore_best_weights=True)
         logger_cb = CSVLogger('training.log', separator="|")
         return [checkpoint_cb, early_stopping_cb, logger_cb]

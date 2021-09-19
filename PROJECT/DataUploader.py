@@ -3,15 +3,17 @@ import tensorflow as tf
 import tensorflow.keras as keras
 import numpy as np
 import os, os.path
+from matplotlib.pyplot import figure, imshow, axis
+import matplotlib.pyplot as plt
 
 class UploadData():
   def __init__(self):
-    #TRAINING_DIRECTORY = '/content/dataset/Train/GRAY'
-    #TRAINING_MAL_DIRECTORY = '/content/dataset/Train/GRAY/m_greyscale/'
-    #TRAINING_BEN_DIRECTORY = '/content/dataset/Train/GRAY/b_greyscale/'
     
-    #TEST_MAL_DIRECTORY = '/content/dataset/Train/GRAY/m_greyscale/'
-    #TEST_BEN_DIRECTORY = '/content/dataset/Train/GRAY/b_greyscale/'
+    # self.TRAINING_MAL_DIRECTORY = '/home/qian/Masterproject/dataset/train_images/GRAY/m_greyscale/'
+    # self.TRAINING_BEN_DIRECTORY = '/home/qian/Masterproject/dataset/train_images/GRAY/b_greyscale/'
+    
+    # self.TEST_MAL_DIRECTORY = '/content/dataset/Train/GRAY/m_greyscale/'
+    # self.TEST_BEN_DIRECTORY = '/content/dataset/Train/GRAY/b_greyscale/'
     
     self.TRAINING_MAL_DIRECTORY = '/home/qian/Masterproject/dataset/catsdogs/dataset/training_set/gatti/'
     self.TRAINING_BEN_DIRECTORY = '/home/qian/Masterproject/dataset/catsdogs/dataset/training_set/cani/'
@@ -20,11 +22,16 @@ class UploadData():
     self.TEST_BEN_DIRECTORY = '/home/qian/Masterproject/dataset/catsdogs/dataset/test_set/cani/'
     # path joining version for other paths
     
-    self.mal_train_size = len([name for name in os.listdir(self.TRAINING_MAL_DIRECTORY+'cats') if os.path.isfile(os.path.join(self.TRAINING_MAL_DIRECTORY+'cats', name))])
-    self.ben_train_size = len([name for name in os.listdir(self.TRAINING_BEN_DIRECTORY+'dogs') if os.path.isfile(os.path.join(self.TRAINING_BEN_DIRECTORY+'dogs', name))])
-    self.mal_test_size = len([name for name in os.listdir(self.TEST_MAL_DIRECTORY+'cats') if os.path.isfile(os.path.join(self.TEST_MAL_DIRECTORY+'cats', name))])
-    self.ben_test_size = len([name for name in os.listdir(self.TEST_BEN_DIRECTORY+'dogs') if os.path.isfile(os.path.join(self.TEST_BEN_DIRECTORY+'dogs', name))])
+    # self.mal_train_size = len([name for name in os.listdir(self.TRAINING_MAL_DIRECTORY+'mm_greyscale') if os.path.isfile(os.path.join(self.TRAINING_MAL_DIRECTORY+'mm_greyscale', name))])
+    # self.ben_train_size = len([name for name in os.listdir(self.TRAINING_BEN_DIRECTORY+'bb_greyscale') if os.path.isfile(os.path.join(self.TRAINING_BEN_DIRECTORY+'bb_greyscale', name))])
+    # self.mal_test_size = len([name for name in os.listdir(self.TEST_MAL_DIRECTORY+'mm_greyscale') if os.path.isfile(os.path.join(self.TEST_MAL_DIRECTORY+'mm_greyscale', name))])
+    # self.ben_test_size = len([name for name in os.listdir(self.TEST_BEN_DIRECTORY+'bb_greyscale') if os.path.isfile(os.path.join(self.TEST_BEN_DIRECTORY+'bb_greyscale', name))])
     
+    self.mal_train_size = 4000 #len([name for name in os.listdir(self.TRAINING_MAL_DIRECTORY+'cats') if os.path.isfile(os.path.join(self.TRAINING_MAL_DIRECTORY+'cats', name))])
+    self.ben_train_size = 4000 #len([name for name in os.listdir(self.TRAINING_BEN_DIRECTORY+'dogs') if os.path.isfile(os.path.join(self.TRAINING_BEN_DIRECTORY+'dogs', name))])
+    self.mal_test_size = 1000 #len([name for name in os.listdir(self.TEST_MAL_DIRECTORY+'cats') if os.path.isfile(os.path.join(self.TEST_MAL_DIRECTORY+'cats', name))])
+    self.ben_test_size = 1000 #len([name for name in os.listdir(self.TEST_BEN_DIRECTORY+'dogs') if os.path.isfile(os.path.join(self.TEST_BEN_DIRECTORY+'dogs', name))])
+
     self.COLOR_MODE = 'grayscale'
     self.IMAGE_HEIGHT = 256
     self.IMAGE_WIDTH = 256
@@ -175,3 +182,4 @@ class UploadData():
     # normalized_validatioin_ds = validation_ds.map(lambda x, y: (normalization_layer(x), y))
 
     return normalized_ds, normalized_mal_ds, normalized_ben_ds
+

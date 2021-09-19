@@ -186,4 +186,5 @@ class UploadData():
 
         
 
-      
+ben_train, ben_val = uploader.upload_train_ben_set()
+ben_train, ben_val = uploader.upload_train_ben_set()      

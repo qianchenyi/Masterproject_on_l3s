@@ -3,11 +3,14 @@ from DataUploader import UploadData
 from MasterGAN import MasterGAN
 import os
 import zipfile
-import ImageProcessing
+# import ImageProcessing
 from numpy import asarray
 from numpy import save
 from kaggle.api.kaggle_api_extended import KaggleApi
 import os
+import tensorflow as tf
+
+print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
 
 width, height = 256, 256
 # colormap = ImageProcessing.defineColorMap()
@@ -32,14 +35,15 @@ width, height = 256, 256
 # os.system('mv /content/data/dataset/test_set/cats /content/data/dataset/test_set/gatti')
 
 uploader = UploadData()
-cats_train, cats_val = uploader.upload_train_mal_set()
-cats_test =uploader.upload_test_mal_set()
+mal_train, mal_val = uploader.upload_train_mal_set()
+mal_test =uploader.upload_test_mal_set()
 
-dogs_train, dogs_val = uploader.upload_train_ben_set()
-mixed_train, mixed_val = uploader.upload_training_set(dogs_train, dogs_val,cats_train, cats_val)
+ben_train, ben_val = uploader.upload_train_ben_set()
+mixed_train, mixed_val = uploader.upload_training_set(ben_train, ben_val,mal_train, mal_val)
 
 bb_detector = MalwareDetectionModels(width, height, 'M11',mixed_train, mixed_val)
 GAN = MasterGAN(bb_detector,256, 256)
-GAN.train(dogs_train,cats_train,cats_test)
+GAN.train(ben_train,mal_train,mal_test)
+GAN.loss_plot()
 
 

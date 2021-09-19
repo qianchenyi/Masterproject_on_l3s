@@ -6,15 +6,15 @@ import os
 import tensorflow.keras as keras
 from tensorflow.keras import layers, models, applications, optimizers, losses, metrics
 from keras.layers.merge import Concatenate
-from keras import layers
-from keras.layers import Input
-from keras.models import Model
+from tensorflow.keras import layers
+from tensorflow.keras.layers import Input
+from tensorflow.keras.models import Model
 from IPython import display
 
 class MasterGAN:
     BUFFER_SIZE = 60000
     BATCH_SIZE = 256
-
+    gen_loss_array,sub_det_loss_array = [],[]
     def __init__(self, blackbox, img_w=256, img_h=256):
         # initialize image aspect ratio
         self.img_width = img_w
@@ -170,6 +170,8 @@ class MasterGAN:
 
             gen_loss = self.generator_loss(sd_on_adv)
             disc_loss = self.substitute_detector_loss(sd_on_real, sd_on_adv, bb_on_real, bb_on_adv)
+            gen_loss_array.append(gen_loss)
+            sub_det_loss_array.append(disc_loss)
 
         gradients_of_generator = gen_tape.gradient(gen_loss, self.generator.trainable_variables)
         gradients_of_sub_detector = disc_tape.gradient(disc_loss, self.substitute_detector.trainable_variables)
@@ -180,6 +182,7 @@ class MasterGAN:
     
     def train(self,ben_images, mal_images,test_mal_set):
       ckpt,ckpt_prefix = self.checkpoint()
+
       for epoch in range(self.EPOCHS):
         start = time.time()
         for batch_mal,batch_ben in zip(mal_images,ben_images):
@@ -200,7 +203,8 @@ class MasterGAN:
       # Generate after the final epoch
       display.clear_output(wait=True)
       self.generate_and_save_images(self.generator,self.EPOCHS,test_mal_set,self.seed)
-                              
+
+                      
                               
 
     def generate_and_save_images(self, generator, epoch, test_mal_set,noise):
@@ -227,3 +231,12 @@ class MasterGAN:
       test_mal_set = uploader.upload_test_mal_set()
       test_ben_set = uploader.upload_test_ben_set()
       train(train_)'''
+    def loss_plot():
+    #plot the loss
+      plt.figure()
+      plt.plot(range(len(gen_loss_array) ), gen_loss_array, c='r', label='generator', linewidth=2)
+      plt.plot(range(len(sub_det_loss_array)), sub_det_loss_array, c='g', linestyle='--', label='sub_discriminator', linewidth=2)
+      plt.xlabel("Epoch")
+      plt.ylabel("loss")
+      plt.legend()
+      plt.show()  

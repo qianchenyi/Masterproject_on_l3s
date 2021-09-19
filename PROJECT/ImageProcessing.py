@@ -3,24 +3,37 @@
 import numpy as np
 import os, math
 import argparse
+from os.path import join as pjoin
 from PIL import Image
+import math
+from numpy import asarray
+from numpy import save
+from itertools import zip_longest
+import cv2
+ben_data_dir = '/home/qian/Masterproject/dataset/benign_dataset/'
+ben_gray_save_dir='/home/qian/Masterproject/dataset/train_images/GRAY/b_greyscale/bb_greyscale'
+mal_data_dir ='/home/qian/Masterproject/dataset/malware'
+mal_gray_save_dir = '/home/qian/Masterproject/dataset/train_images/GRAY/m_greyscale/mm_greyscale'
+# def defineColorMap():
+#   rows  = 256
+#   columns = 256
+#   min = 0 
+#   max = 256
+#   step = 2
+#   colormap = np.random.randint(min, max, size=rows * columns, dtype='l')
+#   colormap.resize(rows,columns)
+#   print(colormap)
+#   print("\n\n ",colormap.shape)
+#   return colormap
 
-def defineColorMap():
-  rows  = 256
-  columns = 256
-  min = 0 
-  max = 256
-  step = 2
-  colormap = np.random.randint(min, max, size=rows * columns, dtype='l')
-  colormap.resize(rows,columns)
-  print(colormap)
-  print("\n\n ",colormap.shape)
-  return colormap
-
-'''colormap = defineColorMap()
-R_colormap = defineColorMap()
-G_colormap = defineColorMap()
-B_colormap = defineColorMap()'''
+# gray_colormap = defineColorMap()
+# R_colormap = defineColorMap()
+# G_colormap = defineColorMap()
+# B_colormap = defineColorMap()
+# save('/home/qian/Masterproject/dataset/colormap/gray_colormap.npy', gray_colormap)
+# save('/home/qian/Masterproject/dataset/colormap/R_colormap.npy', R_colormap)
+# save('/home/qian/Masterproject/dataset/colormap/G_colormap.npy', G_colormap)
+# save('/home/qian/Masterproject/dataset/colormap/B_colormap.npy', B_colormap)
 
 def readBytes (filename):
   img_bin_data = []
@@ -38,33 +51,31 @@ def readBytes (filename):
 def readBytes_fromNumpy (filename):
   return np.load(filename)
 
-#img_bin_data = readBytes('/content/logounirc.png')
+
 #print(img_bin_data)
 
 #img_bin_data = readBytes_fromNumpy('/content/123.npy')
 #print(img_bin_data)
 
-from itertools import zip_longest
+
 def grouper(iterable, n, fillvalue=None):
   "Collect data into fixed-length chunks or blocks"
   # grouper('ABCDEFG', 3, 'x') --> ABC DEF Gxx
   args = [iter(iterable)] * n
   return zip_longest(fillvalue = fillvalue, *args)
 
-def to1DArray_grayscale(img_bin_data):
+
+def to1DArray_grayscale(img_bin_data,colormap):
   pixel_array = []
-  
   for x, y in grouper(img_bin_data, 2) :
-    
     new_pixel = colormap[x][y]
-    
     pixel_array.append(new_pixel)
     
   return pixel_array
 
-#grayscale_array = to1DArray_grayscale(img_bin_data)
 
-def to1DArray_RGB(img_bin_data):
+
+def to1DArray_RGB(img_bin_data,R,G,B):
   pixel_array = []
   for x, y in grouper(img_bin_data, 2) :
     pixel_array.append((R_colormap[x][y], G_colormap[x][y], B_colormap[x][y]))
@@ -92,7 +103,7 @@ def saveImg (filename, data, size, img_type):
   except Exception as err:
     print(err)
 
-#saveImg('/content/output.png', grayscale_array, (512,512),'L')
+
 
 #saveImg('/content/outputt.png', RGB_array, (512,512),'RGB')
 
@@ -151,3 +162,26 @@ def generateMarkovImg(binary_data):
   #Output: M = {m1, m2, m3...mn} is a set where mi represents a pixel value in Markov image.
 
 #saveImg('/content/outputtt.png', generateMarkovImg(img_bin_data), (512,512),'L')
+
+
+
+width = 256
+colormap = readBytes_fromNumpy('/home/qian/Masterproject/dataset/colormap/gray_colormap.npy')
+for i in os.listdir(ben_data_dir):#read the img name in this family
+    img_dir= pjoin(ben_data_dir,i)#img address
+    img_bin_data = readBytes(img_dir)
+    grayscale_array = to1DArray_grayscale(img_bin_data,colormap)
+    height = math.ceil(len(grayscale_array)/width)
+
+    saveImg(pjoin(ben_gray_save_dir,i[:-4])+'.png', grayscale_array, (width,height),'L')
+
+
+# for i in os.listdir(mal_data_dir):#read the img name in this family
+#     img_dir= pjoin(mal_data_dir,i)#img address
+#     img = cv2.imread(img_dir,cv2.IMREAD_GRAYSCALE)#read the img
+#     img_bin_data = img.flatten()
+#     grayscale_array = to1DArray_grayscale(img_bin_data,colormap)
+#     height = math.ceil(len(grayscale_array)/width)
+
+#     saveImg(pjoin(mal_gray_save_dir,i[:-4])+'.png', grayscale_array, (width,height),'L')
+
