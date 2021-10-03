@@ -10,10 +10,16 @@ from numpy import asarray
 from numpy import save
 from itertools import zip_longest
 import cv2
-ben_data_dir = '/home/qian/Masterproject/dataset/benign_dataset/'
-ben_gray_save_dir='/home/qian/Masterproject/dataset/train_images/GRAY/b_greyscale/bb_greyscale'
-mal_data_dir ='/home/qian/Masterproject/dataset/malware'
-mal_gray_save_dir = '/home/qian/Masterproject/dataset/train_images/GRAY/m_greyscale/mm_greyscale'
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+import tensorflow as tf
+import random
+from random import randint 
+# ben_data_dir = '/home/qian/Masterproject/dataset/benign_dataset/'
+# ben_gray_save_dir='/home/qian/Masterproject/dataset/train_images/GRAY/b_greyscale/bb_greyscale'
+# mal_data_dir ='/home/qian/Masterproject/dataset/malware'
+# mal_gray_save_dir = '/home/qian/Masterproject/dataset/train_images/GRAY/m_greyscale/mm_greyscale'
 # def defineColorMap():
 #   rows  = 256
 #   columns = 256
@@ -50,7 +56,35 @@ def readBytes (filename):
 
 def readBytes_fromNumpy (filename):
   return np.load(filename)
+def readBytes1 (filename):
+  img_bin_data = []
+  with open(filename, 'rb') as file:
+     #this sintax is to be read as "with the output of the function open considered as a file"
+     # wb as in read binary
+    while True:
+      # as long as we can read one byte
+      b = file.read(1)
+      if not b:
+        break
+      img_bin_data.append(int.from_bytes(b, byteorder='big'))
+  while len(img_bin_data)%256!=0:
+    img_bin_data.append(randint(0, 255))
+  return img_bin_data
 
+def readBytes2 (filename):
+  img_bin_data = []
+  with open(filename, 'rb') as file:
+     #this sintax is to be read as "with the output of the function open considered as a file"
+     # wb as in read binary
+    while True:
+      # as long as we can read one byte
+      b = file.read(1)
+      if not b:
+        break
+      img_bin_data.append(int.from_bytes(b, byteorder='big'))
+  while len(img_bin_data)%256!=0:
+    img_bin_data.append(randint(0, 255))
+  return tf.convert_to_tensor(img_bin_data)
 
 #print(img_bin_data)
 
@@ -162,18 +196,21 @@ def generateMarkovImg(binary_data):
   #Output: M = {m1, m2, m3...mn} is a set where mi represents a pixel value in Markov image.
 
 #saveImg('/content/outputtt.png', generateMarkovImg(img_bin_data), (512,512),'L')
+# def bin_to_img(original_file, data, size, img_type):
+#   readBytes (original_file)
+#   saveImg (filename, data, size, img_type)
 
-
-
-width = 256
-colormap = readBytes_fromNumpy('/home/qian/Masterproject/dataset/colormap/gray_colormap.npy')
-for i in os.listdir(ben_data_dir):#read the img name in this family
-    img_dir= pjoin(ben_data_dir,i)#img address
-    img_bin_data = readBytes(img_dir)
-    grayscale_array = to1DArray_grayscale(img_bin_data,colormap)
-    height = math.ceil(len(grayscale_array)/width)
-
-    saveImg(pjoin(ben_gray_save_dir,i[:-4])+'.png', grayscale_array, (width,height),'L')
+# mal_exe_dir='/home/qian/Masterproject/dataset/exe_malimg'
+# mal_gray_save_dir = '/home/qian/Masterproject/dataset/train_images/MARKOV/m_markov'
+# width = 256
+# colormap = readBytes_fromNumpy('/home/qian/Masterproject/dataset/colormap/gray_colormap.npy')
+# for i in os.listdir(mal_exe_dir):#read the img name in this family
+#     img_dir= pjoin(mal_exe_dir,i)#img address
+#     img_bin_data = readBytes(img_dir)
+#     grayscale_array = to1DArray_grayscale(img_bin_data,colormap)
+#     height = math.ceil(len(grayscale_array)/width)
+   
+#     saveImg(pjoin(mal_gray_save_dir,i[:-4])+'.png', grayscale_array, (width,height),'L')
 
 
 # for i in os.listdir(mal_data_dir):#read the img name in this family
@@ -185,3 +222,19 @@ for i in os.listdir(ben_data_dir):#read the img name in this family
 
 #     saveImg(pjoin(mal_gray_save_dir,i[:-4])+'.png', grayscale_array, (width,height),'L')
 
+#what we need to convert is only the benign .exe files, the malware use Malimg, it's already image 
+# width = 256
+# binary_ben_dir='/home/qian/Masterproject/dataset/benign_dataset'
+# Benimg ='/home/qian/Masterproject/dataset/Benimg'
+# for i in os.listdir(ben_data_dir):#read the img name in this family
+#   exe_dir= pjoin(ben_data_dir,i)#img address
+#   bin_data = readBytes(exe_dir)
+#   height = math.ceil(len(bin_data)/width)
+  
+#   saveImg(pjoin(Benimg,i[:-4])+'.png', bin_data, (width,height),'L')
+
+# width = 128
+# ben_data_dir = '/home/qian/Masterproject/dataset/exe_comb/mal1.exe'
+# img_bin_data = readBytes(ben_data_dir)
+# height = math.ceil(len(img_bin_data)/width)
+# saveImg('/home/qian/Masterproject/dataset/exe_comb/com/malbig.png', img_bin_data, (width,height),'L')

@@ -1,6 +1,5 @@
 
 import numpy as np
-
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.callbacks import ModelCheckpoint
@@ -8,102 +7,106 @@ from tensorflow.keras import layers, models, applications, optimizers, losses, m
 from tensorflow.keras.callbacks import *
 import pandas
 import matplotlib.pyplot as plt
-
+import ImageProcessing
+import os
+import cv2
+from os.path import join as pjoin
+import math
 
 class MalwareDetectionModels:
-    TRAINING_DATA_DIRECTORY = '/content/data/dataset/training_set'
-    TEST_DATA_DIRECTORY = '/content/data/dataset/test_set'
-    COLOR_MODE = 'grayscale'
-    IMAGE_HEIGHT = 256
-    IMAGE_WIDTH = 256
-    BATCH_SIZE = 10
-    SEED = 1337
 
-    SEED = 1337
 
-    def __init__(self, img_w, img_h, model_name,training_set, validation_set):
+ 
+
+    def __init__(self, img_w, img_h, model_name,training_set, validation_set,test_set,loaded):
         self.image_width = img_w
         self.image_height = img_h
         self.model = None
-        if model_name == "M1":
-            self.model = self.bulid_m1()
-            self.epochs = 50
-            self.rate = 0.000075
-        elif model_name == "M2":
-            self.model = self.bulid_m2()
-            self.epochs = 50
-            self.rate = 0.00001
-        elif model_name == "M3":
-            '''  In M-3, initially, each input image has to go through three convolution layers of 32 neurons each.
-             Then it has to go through a max pooling layer and finally through a fully connected layer of 16384 neurons. 
-             It executed for 200 epochs, with a batch size of 32, and a learning rate of 0.0001.'''
-            self.model = self.bulid_m3()
-            self.epochs = 200
-            self.batch_size = 32
-            self.rate = 0.01
-        elif model_name == "M4":
-            self.model = self.bulid_m4()
-            self.epochs = 120
-            self.rate = 0.01
-        elif model_name == "M5":
-            # M-5 (convolution followed by global pool and a fully connected layer) has again poor performances. T
-            self.model = self.bulid_m5()
-            self.epochs = 50
-            self.rate = 0.01
-        elif model_name == "M6":
-            self.model = self.bulid_m6()
-            self.epochs = 50
-            self.rate = 0.01
-        elif model_name == "M7":
-            self.model = self.bulid_m7()
-            self.epochs = 250
-            self.rate = 0.01
-        elif model_name == "M8":
-            self.model = self.bulid_m8()
-            self.epochs = 200
-            self.rate = 0.01
-        elif model_name == "M9":
-            self.model = self.bulid_m9()
-            self.epochs = 30
-            self.rate = 0.0001
-        elif model_name == "M10":
-            '''  Here, in the case of M-10 (VGG3 with dropout) the network topology is VGG3 
-            followed by three fully connected layers with 1024, 2048 and 4096 respectively. 
-            Hyperparameters are leraning rate of 0.0001 and batch size of 64.'''
-            self.model = self.bulid_m10()
-            self.epochs = 30
-            self.rate = 0.0001
-        elif model_name == "M11":
-            '''
-            Filter size of convolution layer used is 3×3 for all the models.
-      
-            Its architecture is composed of VGG3 followed by three fully connected layers of 4096 neurons each.
-             In this model dropout rates of 0.2, 0.2, 0.3, and batch normalization were included between 
-             the convolutionpooling layers of VGG3. In addition, same dropout rates and batch normalization 
-             were added in between fully connected layers.
-      
-            for M-11 (VGG3 with dropout and batch normalization) were 30 epochs, batch-size of 64 and a learning
-            rate of 0.0001 on Dataset-I while the number of epochs were increased to 200 for M-11 (VGG3 with dropout and batch normalization) on Dataset-II
-            '''
-            '''model M-11 (VGG3 with dropout and batch normalization) reports high performance 
-            measures with a rise of 0.89% and 1.83% in F-measure compared to the model M-11 
-            (VGG3 with dropout and batch normalization) generated using RGB images of Dataset-I 
-            and Dataset-II respectively. The model M-11 (VGG3 with dropout and batch normalization) 
-            was executed for 50 epochs with dropout rates 0.1, 0.2, 0.3 and learning rate 0.0001 on Dataset-I. For Dataset-II the dropouts were 0.1, 0.2, 0.3 with a learning rate of 0.000007. However, the epochs remained the same.'''
-            self.batch_size = 64
-            self.model = self.bulid_m11()
-            self.epochs = 5
-            self.rate = 0.0001
-        elif model_name == "M12":
-            ''' ResNet-50 along with three fully connected layers of 1024, 512 and 256 neurons.'''
-            self.model = self.bulid_m12()
-            self.epochs = 30
-            self.rate = 0.0001
+        self.loaded = loaded
+        if not loaded:
+            if model_name == "M1":
+                self.model = self.bulid_m1()
+                self.epochs = 50
+                self.rate = 0.000075
+            elif model_name == "M2":
+                self.model = self.bulid_m2()
+                self.epochs = 50
+                self.rate = 0.00001
+            elif model_name == "M3":
+                '''  In M-3, initially, each input image has to go through three convolution layers of 32 neurons each.
+                Then it has to go through a max pooling layer and finally through a fully connected layer of 16384 neurons. 
+                It executed for 200 epochs, with a batch size of 32, and a learning rate of 0.0001.'''
+                self.model = self.bulid_m3()
+                self.epochs = 200
+                self.batch_size = 32
+                self.rate = 0.01
+            elif model_name == "M4":
+                self.model = self.bulid_m4()
+                self.epochs = 120
+                self.rate = 0.01
+            elif model_name == "M5":
+                # M-5 (convolution followed by global pool and a fully connected layer) has again poor performances. T
+                self.model = self.bulid_m5()
+                self.epochs = 50
+                self.rate = 0.01
+            elif model_name == "M6":
+                self.model = self.bulid_m6()
+                self.epochs = 50
+                self.rate = 0.01
+            elif model_name == "M7":
+                self.model = self.bulid_m7()
+                self.epochs = 250
+                self.rate = 0.01
+            elif model_name == "M8":
+                self.model = self.bulid_m8()
+                self.epochs = 200
+                self.rate = 0.01
+            elif model_name == "M9":
+                self.model = self.bulid_m9()
+                self.epochs = 30
+                self.rate = 0.0001
+            elif model_name == "M10":
+                '''  Here, in the case of M-10 (VGG3 with dropout) the network topology is VGG3 
+                followed by three fully connected layers with 1024, 2048 and 4096 respectively. 
+                Hyperparameters are leraning rate of 0.0001 and batch size of 64.'''
+                self.model = self.bulid_m10()
+                self.epochs = 30
+                self.rate = 0.0001
+            elif model_name == "M11":
+                '''
+                Filter size of convolution layer used is 3×3 for all the models.
+        
+                Its architecture is composed of VGG3 followed by three fully connected layers of 4096 neurons each.
+                In this model dropout rates of 0.2, 0.2, 0.3, and batch normalization were included between 
+                the convolutionpooling layers of VGG3. In addition, same dropout rates and batch normalization 
+                were added in between fully connected layers.
+        
+                for M-11 (VGG3 with dropout and batch normalization) were 30 epochs, batch-size of 64 and a learning
+                rate of 0.0001 on Dataset-I while the number of epochs were increased to 200 for M-11 (VGG3 with dropout and batch normalization) on Dataset-II
+                '''
+                '''model M-11 (VGG3 with dropout and batch normalization) reports high performance 
+                measures with a rise of 0.89% and 1.83% in F-measure compared to the model M-11 
+                (VGG3 with dropout and batch normalization) generated using RGB images of Dataset-I 
+                and Dataset-II respectively. The model M-11 (VGG3 with dropout and batch normalization) 
+                was executed for 50 epochs with dropout rates 0.1, 0.2, 0.3 and learning rate 0.0001 on Dataset-I. For Dataset-II the dropouts were 0.1, 0.2, 0.3 with a learning rate of 0.000007. However, the epochs remained the same.'''
+                self.batch_size = 64
+                self.model = self.bulid_m11()
+                self.epochs = 15
+                self.rate = 0.00001
+            elif model_name == "M12":
+                ''' ResNet-50 along with three fully connected layers of 1024, 512 and 256 neurons.'''
+                self.model = self.bulid_m12()
+                self.epochs = 30
+                self.rate = 0.0001
 
-        self.define_callbacks()
-        self.history = self.train_bb_detector(training_set, validation_set)
-        # self.evaluate_bb_detector()
-        # self.plot_history()
+            
+            self.define_callbacks()
+            self.history = self.train_bb_detector(training_set, validation_set)
+            self.evaluate_bb_detector(test_set)
+            #self.plot_history()
+        else:
+            self.model = tf.keras.models.load_model('/home/qian/Masterproject/PROJECT/saved_model/model_test.h5')
+
 
     def bulid_m1(self):
         m1 = models.Sequential()
@@ -292,7 +295,7 @@ class MalwareDetectionModels:
         m11.add(layers.Dense(4096, activation='relu'))
         m11.add(layers.BatchNormalization())
         m11.add(layers.Dropout(.4, input_shape=(2,)))
-        m11.add(layers.Dense(2, activation='sigmoid'))
+        m11.add(layers.Dense(1, activation='sigmoid'))
         return m11
 
     def bulid_m12(self):
@@ -308,7 +311,8 @@ class MalwareDetectionModels:
         return m12
 
     def define_callbacks(self):
-        checkpoint_cb = ModelCheckpoint("/home/qian/Masterproject/PROJECT/checkpoint/Model.h5", save_best_only=True)
+
+        checkpoint_cb = ModelCheckpoint("/home/qian/Masterproject/PROJECT/saved_model/model_test.h5", save_best_only=True)
         early_stopping_cb = EarlyStopping(patience=10, restore_best_weights=True)
         logger_cb = CSVLogger('training.log', separator="|")
         return [checkpoint_cb, early_stopping_cb, logger_cb]
@@ -318,10 +322,13 @@ class MalwareDetectionModels:
         #uploader = UploadData()
         #training_set, validation_set = uploader.upload_set()
         # binary crossentropy or sparse categorical???
-      self.model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
-      history = self.model.fit(training_set, epochs=self.epochs, validation_data=validation_set,
+       
+        #self.model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+        self.model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'],run_eagerly = True)
+        history = self.model.fit(training_set, epochs=self.epochs, validation_data=validation_set,
                                  callbacks=self.define_callbacks())
-      return history
+        self.model.save('/home/qian/Masterproject/PROJECT/saved_model/model_test.h5')
+        return history
 
     def plot_history(self):
       data_frame = pandas.DataFrame(self.history.history)
@@ -329,20 +336,96 @@ class MalwareDetectionModels:
       plt.xlabel('Epochs')
       plt.ylabel('Sparse categorical cross-entropy')
 
-    def evaluate_bb_detector(self):
-      #uploader = UploadData()
-      #test_set = uploader.upload_test_set('/content/dataseett/dataset/test_set')
-      validation_set = keras.preprocessing.image_dataset_from_directory(
-          self.TEST_DATA_DIRECTORY,
-          labels='inferred', 
-          label_mode='int',
-          class_names=None,
-          color_mode=self.COLOR_MODE,
-          seed=self.SEED,
-          interpolation="area",
-          batch_size=self.BATCH_SIZE,
-          image_size=(self.IMAGE_HEIGHT, self.IMAGE_WIDTH),
-          shuffle=True,
-      )
+    def evaluate_bb_detector(self,test_set):
+    #   #uploader = UploadData()
+    #   #test_set = uploader.upload_test_set('/content/dataseett/dataset/test_set')
+    #   validation_set = keras.preprocessing.image_dataset_from_directory(
+    #       self.TEST_DATA_DIRECTORY,
+    #       labels='inferred', 
+    #       label_mode='int',
+    #       class_names=None,
+    #       color_mode=self.COLOR_MODE,
+    #       seed=self.SEED,
+    #       interpolation="area",
+    #       batch_size=self.BATCH_SIZE,
+    #       image_size=(self.IMAGE_HEIGHT, self.IMAGE_WIDTH),
+    #       shuffle=True,
+    #   )
       test_loss, test_acc = self.model.evaluate(test_set, verbose=2)
       print('\nTest accuracy:', test_acc)
+
+
+    def clear_folder(self,dir):
+        for f in os.listdir(dir):
+            os.remove(os.path.join(dir, f))
+    def process_data(self,iterable,epoch):
+        #colormap = np.load('/home/qian/Masterproject/dataset/colormap/gray_colormap.npy')
+        width = 256
+        img_to_predict='/home/qian/Masterproject/dataset/mmid_imgs/'
+        self.clear_folder('/home/qian/Masterproject/dataset/mmid_imgs/mid_imgs')
+
+        i =0
+        for it in iterable:
+            img_bin_array = np.array(it).astype(int)
+            #img_bin_array = it.reshape(it.shape[0]*it.shape[1]).astype(int)
+            flat = img_bin_array.flatten()
+            #grayscale_array = ImageProcessing.to1DArray_grayscale(flat,colormap)
+            #height = math.ceil(len(grayscale_array)/width)
+            height = math.ceil(len(flat)/width)
+            if i<=9:
+                ImageProcessing.saveImg('/home/qian/Masterproject/dataset/mmid_imgs/mid_imgs/0'+str(i)+'.png', flat, (width,height),'L')
+                if (epoch%20 == 0) and i<=4:
+                    ImageProcessing.saveImg('/home/qian/Masterproject/dataset/noise_mal_comb_exe/comb_mid/'+str(epoch)+'Epoch'+str(i)+'.png', flat, (width,height),'L')
+            elif i>=10:
+                ImageProcessing.saveImg('/home/qian/Masterproject/dataset/mmid_imgs/mid_imgs/'+str(i)+'.png', flat, (width,height),'L')
+            i = i+1
+        
+        mid_img_set = self.upload_mid_set(img_to_predict)
+        for only_batch in  mid_img_set:
+            return only_batch  
+
+            
+    # def process_data1(self,path_to_exes):
+    #     colormap = ImageProcessing.readBytes_fromNumpy('/home/qian/Masterproject/dataset/colormap/gray_colormap.npy')
+    #     width = 256
+    #     img_to_predict='/home/qian/Masterproject/dataset/mmid_imgs/'
+    #     self.clear_folder('/home/qian/Masterproject/dataset/mmid_imgs/mid_imgs')
+        
+    #     i =0
+    #     for path in path_to_exes:
+    #         img_bin_array = ImageProcessing.readBytes(path)
+    #         grayscale_array = ImageProcessing.to1DArray_grayscale(img_bin_array,colormap)
+    #         height = math.ceil(len(grayscale_array)/width)
+    #         ImageProcessing.saveImg(pjoin('/home/qian/Masterproject/dataset/mmid_imgs/mid_imgs',str(i))+'.png', grayscale_array, (width,height),'L')
+    #         i = i+1
+        
+    #     mid_img_set = self.upload_mid_set(img_to_predict)
+    #     for only_batch in  mid_img_set:
+    #         return only_batch  
+          
+
+    def upload_mid_set(self, DIRECTORY):
+        COLOR_MODE = 'grayscale'
+        IMAGE_HEIGHT = 256
+        IMAGE_WIDTH = 256
+        BATCH_SIZE = 64
+        SEED = 1337
+        mid_img_set= keras.preprocessing.image_dataset_from_directory(
+            DIRECTORY,
+            label_mode = None,
+            color_mode=COLOR_MODE,
+            seed=SEED,
+            interpolation="area",
+            batch_size=BATCH_SIZE,
+            image_size=(IMAGE_HEIGHT, IMAGE_WIDTH),
+            shuffle=False
+        )
+        return mid_img_set
+
+    def make_prediction(self,samples,epoch):
+ 
+        self.data = self.process_data(samples,epoch)
+        if self.loaded:
+            return self.model.predict(self.data)
+        else:
+            return self.model.model(self.data)
