@@ -1,5 +1,5 @@
 # Masterproject_on_l3s
-The .py files in the project:
+The files in the PROJECT:
 1. Image_Processing.py is used define the colormap and convert the malware dataset "MalImg" to grayscale images with colormap. Some functions about reading files are also defined here.
 
 2. benign_processing_new.py is used to convert the collected benign executables to greyscale images with and without colomap.
