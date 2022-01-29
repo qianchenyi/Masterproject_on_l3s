@@ -41,19 +41,9 @@ gan_set = keras.preprocessing.image_dataset_from_directory(
     image_size=(IMAGE_HEIGHT, IMAGE_WIDTH),
     shuffle=False
 )
-bb_on_real = np.load('/home/qian/Masterproject/dataset/bb_on_real/BB_ON_REAL_RIGHT_test.npy',allow_pickle=True)
+bb_on_real = np.load('/home/qian/Masterproject/dataset/bb_on_real/BB_ON_REAL_RIGHT.npy',allow_pickle=True)
 
-#####should be changed later#########
-mal_test = '/home/qian/Masterproject/ae.exe'
+
 GAN = MasterGAN(True,bb_detector,height, 256, 256)
 GAN.train(gan_set, malware_sample_1,mal_test, bb_on_real)
 
-# noise_generator = tf.random.Generator.from_seed(2)
-# new_noise = noise_generator.normal(shape=[64,65536])
-
-# generator = tf.keras.models.load_model('/home/qian/Masterproject/PROJECT/saved_model/generator_model.h5')
-# sub_detector =  tf.keras.models.load_model('/home/qian/Masterproject/PROJECT/saved_model/sub_detector.h5')
-
-# adv_sample = generator.predict([malware_sample_1, new_noise])
-# bb_on_adv = bb_detector.make_prediction(adv_sample,100)
-# sub_on_adv = sub_detector.predict(adv_sample)
