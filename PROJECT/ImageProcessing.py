@@ -107,16 +107,8 @@ def to1DArray_grayscale(img_bin_data,colormap):
     
   return pixel_array
 
+#Gray_array = to1DArray_RGB(img_bin_data)
 
-
-def to1DArray_RGB(img_bin_data,R,G,B):
-  pixel_array = []
-  for x, y in grouper(img_bin_data, 2) :
-    pixel_array.append((R_colormap[x][y], G_colormap[x][y], B_colormap[x][y]))
-    #print(pixel_array[index])
-  return pixel_array
-
-#RGB_array = to1DArray_RGB(img_bin_data)
 
 def saveImg (filename, data, size, img_type):
   try:
@@ -139,69 +131,7 @@ def saveImg (filename, data, size, img_type):
 
 
 
-#saveImg('/content/outputt.png', RGB_array, (512,512),'RGB')
-
-def findMax(matrix):
-  max = 0
-  for i in range(0,256):
-    for j in range(0,256):
-      if matrix[i][j]>max:
-        max =  matrix[i][j]
-  return int(max)
-
-def generateMarkovImg(binary_data):
-  # input B (binary_data) = {b1, b2, b3...bn} is a set where bi represents the decimal value of a byte.
-  # TM[i][j] represents the probability that byte bi is followed by bj
-  TM = np.zeros((256,256))
-  S = np.zeros((256,1))
-  L = len(binary_data)
-  #we determine the frequency of occurrence of byte bi followed by bi+1 and bi followed by bk where 0 ≤ k ≤ 255. 
-  i=0
-  while i < L-1:
-    r = binary_data[i]
-    
-    c = binary_data[i+1]
-    
-    TM[r][c] = TM[r][c] +1
-    S[r] = S[r] + 1
-    
-    i = i+1
-
-  i = 0
-  j = 0
-  #compute the probability that byte bi is followed by bi+1
-  while i < 256:
-    rs = S[i]
-    while j < 256:
-      TM[i][j] = TM[i][j]/rs
-      j = j+1
-    i = i+1
-
-  print("TM shape", TM.shape)
-  MP = findMax(TM)
-  print('max',MP)
-  i = 0
-  j = 0
-  M =  np.zeros((256,256))
-  # compute pixels in Markov image
-  while i < 256:
-    while j < 256:
-      
-      p = (TM[i][j]*(255/MP))%256
-      M[i][j] = p
-      j = j+1
-    i = i+1
-  print(M)
-  return M
-  #Output: M = {m1, m2, m3...mn} is a set where mi represents a pixel value in Markov image.
-
-#saveImg('/content/outputtt.png', generateMarkovImg(img_bin_data), (512,512),'L')
-# def bin_to_img(original_file, data, size, img_type):
-#   readBytes (original_file)
-#   saveImg (filename, data, size, img_type)
-
 # mal_exe_dir='/home/qian/Masterproject/dataset/exe_malimg'
-# mal_gray_save_dir = '/home/qian/Masterproject/dataset/train_images/MARKOV/m_markov'
 # width = 256
 # colormap = readBytes_fromNumpy('/home/qian/Masterproject/dataset/colormap/gray_colormap.npy')
 # for i in os.listdir(mal_exe_dir):#read the img name in this family
@@ -222,19 +152,4 @@ def generateMarkovImg(binary_data):
 
 #     saveImg(pjoin(mal_gray_save_dir,i[:-4])+'.png', grayscale_array, (width,height),'L')
 
-#what we need to convert is only the benign .exe files, the malware use Malimg, it's already image 
-# width = 256
-# binary_ben_dir='/home/qian/Masterproject/dataset/benign_dataset'
-# Benimg ='/home/qian/Masterproject/dataset/Benimg'
-# for i in os.listdir(ben_data_dir):#read the img name in this family
-#   exe_dir= pjoin(ben_data_dir,i)#img address
-#   bin_data = readBytes(exe_dir)
-#   height = math.ceil(len(bin_data)/width)
-  
-#   saveImg(pjoin(Benimg,i[:-4])+'.png', bin_data, (width,height),'L')
 
-# width = 128
-# ben_data_dir = '/home/qian/Masterproject/dataset/exe_comb/mal1.exe'
-# img_bin_data = readBytes(ben_data_dir)
-# height = math.ceil(len(img_bin_data)/width)
-# saveImg('/home/qian/Masterproject/dataset/exe_comb/com/malbig.png', img_bin_data, (width,height),'L')
