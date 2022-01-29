@@ -2,3 +2,11 @@
 /dataset
 *.pyc
 *.zip
+*.jpg
+*.h5
+*.asm
+*.npy
+*.7z
+*.exe
+*.csv
+.gitignore
